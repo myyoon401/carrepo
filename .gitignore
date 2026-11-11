@@ -1,0 +1,26 @@
+# Gradle / JVM
+.gradle/
+.kotlin/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+out/
+bin/
+*.class
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+
+# 로컬 환경
+.env
+.env.local
+*.log

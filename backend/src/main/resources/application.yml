@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: carrepo
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/carrepo
+    username: carrepo
+    password: carrepo
+
+  jpa:
+    # 스키마의 정본은 Flyway 다. JPA 는 매핑이 어긋나면 기동을 막는 역할만 한다.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+logging:
+  level:
+    com.carrepo: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [carrepo] %logger{0} - %msg%n"

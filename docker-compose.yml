@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: carrepo-postgres
+    environment:
+      POSTGRES_DB: carrepo
+      POSTGRES_USER: carrepo
+      POSTGRES_PASSWORD: carrepo
+    ports:
+      - "5432:5432"
+    volumes:
+      - carrepo-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carrepo -d carrepo"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  carrepo-pgdata:
