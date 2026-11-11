@@ -2,7 +2,6 @@ package com.carrepo.document
 
 import com.carrepo.common.exception.CarrepoErrorCode
 import com.carrepo.common.exception.CarrepoException
-import com.carrepo.user.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,18 +19,18 @@ class ResumeService(
 ) {
 
     @Transactional
-    fun createFor(user: User): Document {
+    fun createFor(userId: Long, header: ResumeHeaderData): Document {
         val document = documentRepository.save(
-            Document(userId = requireNotNull(user.id), kind = DocumentKind.RESUME, name = "이력서"),
+            Document(userId = userId, kind = DocumentKind.RESUME, name = "이력서"),
         )
-        appendVersion(document, user, changeNote = "가입 시 자동 생성")
+        appendVersion(document, header, changeNote = "가입 시 자동 생성")
         return document
     }
 
     @Transactional
-    fun appendVersionFor(user: User, changeNote: String): DocumentVersion {
-        val document = findResume(requireNotNull(user.id))
-        return appendVersion(document, user, changeNote)
+    fun appendVersionFor(userId: Long, header: ResumeHeaderData, changeNote: String): DocumentVersion {
+        val document = findResume(userId)
+        return appendVersion(document, header, changeNote)
     }
 
     @Transactional(readOnly = true)
@@ -42,7 +41,7 @@ class ResumeService(
             .orElseThrow { CarrepoException(CarrepoErrorCode.RESUME_NOT_FOUND) }
     }
 
-    private fun appendVersion(document: Document, user: User, changeNote: String): DocumentVersion {
+    private fun appendVersion(document: Document, header: ResumeHeaderData, changeNote: String): DocumentVersion {
         val documentId = requireNotNull(document.id)
         val nextSeq = (documentVersionRepository.findTopByDocumentIdOrderBySeqDesc(documentId)?.seq ?: 0) + 1
 
@@ -50,7 +49,7 @@ class ResumeService(
             DocumentVersion(
                 documentId = documentId,
                 seq = nextSeq,
-                html = renderer.render(user),
+                html = renderer.render(header),
                 changeNote = changeNote,
             ),
         )

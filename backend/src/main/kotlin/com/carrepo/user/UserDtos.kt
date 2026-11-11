@@ -63,12 +63,3 @@ data class UserResponse(
         )
     }
 }
-
-data class ResumeResponse(
-    val documentId: Long,
-    val versionId: Long,
-    val seq: Int,
-    val html: String,
-    val changeNote: String?,
-    val createdAt: Instant,
-)

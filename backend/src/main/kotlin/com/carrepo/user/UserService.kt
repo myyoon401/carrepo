@@ -2,6 +2,7 @@ package com.carrepo.user
 
 import com.carrepo.common.exception.CarrepoErrorCode
 import com.carrepo.common.exception.CarrepoException
+import com.carrepo.document.ResumeHeaderData
 import com.carrepo.document.ResumeService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,7 +27,7 @@ class UserService(
         val user = userRepository.save(
             User(name = name, phone = phone, email = email, title = request.title.trim()),
         )
-        resumeService.createFor(user)
+        resumeService.createFor(requireNotNull(user.id), user.toResumeHeader())
         return user
     }
 
@@ -57,8 +58,21 @@ class UserService(
         }
 
         if (user.update(name, phone, email, title)) {
-            resumeService.appendVersionFor(user, changeNote = "내 정보 수정")
+            resumeService.appendVersionFor(
+                userId = requireNotNull(user.id),
+                header = user.toResumeHeader(),
+                changeNote = "내 정보 수정",
+            )
         }
         return user
     }
+
+    // document 는 user 엔티티를 모른다. 넘길 값만 추려서 건넨다.
+    // 전화번호 표기 규칙은 이 쪽 책임이라 여기서 포맷한다.
+    private fun User.toResumeHeader() = ResumeHeaderData(
+        name = name,
+        phone = PhoneNumber.format(phone),
+        email = email,
+        title = title,
+    )
 }

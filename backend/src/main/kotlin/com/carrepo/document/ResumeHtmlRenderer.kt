@@ -1,7 +1,5 @@
 package com.carrepo.document
 
-import com.carrepo.user.PhoneNumber
-import com.carrepo.user.User
 import org.springframework.stereotype.Component
 
 /**
@@ -17,11 +15,11 @@ import org.springframework.stereotype.Component
 @Component
 class ResumeHtmlRenderer {
 
-    fun render(user: User): String {
-        val name = escape(user.name)
-        val email = escape(user.email)
-        val phone = escape(PhoneNumber.format(user.phone))
-        val title = user.title.trim()
+    fun render(header: ResumeHeaderData): String {
+        val name = escape(header.name)
+        val email = escape(header.email)
+        val phone = escape(header.phone)
+        val title = header.title.trim()
 
         return """
             <!DOCTYPE html>
