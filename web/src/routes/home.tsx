@@ -20,7 +20,7 @@ type TitleChoice = (typeof RESUME_TITLE_PRESETS)[number] | typeof CUSTOM_TITLE;
  * 이력서 타이틀을 고르는 단계를 한 번 거치게 한다.
  */
 export function HomePage() {
-  if (session.get() !== null) return <Navigate to="/me" replace />;
+  if (session.get() !== null) return <Navigate to="/menu" replace />;
   return <HomeForm />;
 }
 
@@ -36,7 +36,7 @@ function HomeForm() {
 
   const enter = (userId: number) => {
     session.set(userId);
-    void navigate('/me');
+    void navigate('/menu');
   };
 
   const identify = useMutation({

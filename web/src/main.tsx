@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
 
 import { HomePage } from '@/routes/home';
+import { MenuPage } from '@/routes/menu';
 import { MePage } from '@/routes/me';
 import { PostingDetailPage } from '@/routes/posting-detail';
 import { PostingNewPage } from '@/routes/posting-new';
@@ -15,6 +16,7 @@ import './styles.css';
 // 늘어나면 그때 옮긴다.
 const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
+  { path: '/menu', element: <MenuPage /> },
   { path: '/me', element: <MePage /> },
   { path: '/postings', element: <PostingListPage /> },
   { path: '/postings/new', element: <PostingNewPage /> },

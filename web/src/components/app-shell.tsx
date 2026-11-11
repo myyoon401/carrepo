@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router';
 
 import { BrandMark } from '@/components/brand-mark';
 import { session } from '@/features/user/session';
@@ -25,7 +25,9 @@ export function AppShell({
   return (
     <div className="mx-auto w-full max-w-6xl px-5 py-6 sm:py-10">
       <nav className="mb-8 flex flex-wrap items-center gap-3">
-        <BrandMark size={36} className="shrink-0" />
+        <Link to="/menu" aria-label="메뉴로" className="shrink-0">
+          <BrandMark size={36} />
+        </Link>
         <div className="flex gap-2">
           {NAV.map((item) => (
             <NavLink

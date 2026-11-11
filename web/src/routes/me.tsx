@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router';
 
-import { BrandMark } from '@/components/brand-mark';
+import { AppShell } from '@/components/app-shell';
 import { Button, Field, TextInput } from '@/components/ui/field';
 import { ResumePreview, resumeKeys, resumeQueries } from '@/features/document';
 import { updateUser } from '@/features/user/api';
@@ -71,28 +71,10 @@ function MeContent({ userId }: { userId: number }) {
   const isPreset = RESUME_TITLE_PRESETS.includes(draft.title as (typeof RESUME_TITLE_PRESETS)[number]);
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-5 py-8 sm:py-12">
-      <header className="mb-8 flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <BrandMark size={44} className="mt-0.5 shrink-0" />
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">내 이력서</h1>
-            <p className="mt-1.5 text-sm text-muted">
-              정보를 고치면 이력서 새 버전이 만들어집니다. 이전 버전은 그대로 남습니다.
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          className="text-sm font-medium text-muted underline-offset-4 hover:underline"
-          onClick={() => {
-            session.clear();
-            location.href = '/';
-          }}
-        >
-          다른 정보로 시작하기
-        </button>
-      </header>
+    <AppShell
+      title="이력서 관리"
+      description="정보를 고치면 이력서 새 버전이 만들어집니다. 이전 버전은 그대로 남습니다."
+    >
 
       {/* 좁은 폭에서는 세로로 쌓이고, 넓으면 좌우 2단이 된다. 기능은 양쪽이 같다. */}
       <div className="grid gap-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
@@ -174,6 +156,6 @@ function MeContent({ userId }: { userId: number }) {
 
         <ResumePreview userId={userId} seq={resume.data?.seq} />
       </div>
-    </main>
+    </AppShell>
   );
 }
