@@ -6,6 +6,22 @@ import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import java.time.Instant
 
+// 홈에서 사람을 찾을 때 쓴다. 가입과 달리 이력서 타이틀은 묻지 않는다.
+data class SessionRequest(
+    @field:NotBlank(message = "이름을 입력해 주세요.")
+    @field:Size(max = 50, message = "이름은 50자를 넘을 수 없습니다.")
+    val name: String,
+
+    @field:NotBlank(message = "휴대폰번호를 입력해 주세요.")
+    @field:Pattern(regexp = "^[0-9-\\s]{10,20}$", message = "휴대폰번호 형식이 올바르지 않습니다.")
+    val phone: String,
+
+    @field:NotBlank(message = "이메일을 입력해 주세요.")
+    @field:Email(message = "이메일 형식이 올바르지 않습니다.")
+    @field:Size(max = 255, message = "이메일은 255자를 넘을 수 없습니다.")
+    val email: String,
+)
+
 data class SignUpRequest(
     @field:NotBlank(message = "이름을 입력해 주세요.")
     @field:Size(max = 50, message = "이름은 50자를 넘을 수 없습니다.")

@@ -12,7 +12,7 @@ import { ApiError } from '@/lib/api';
 
 export function MePage() {
   const userId = session.get();
-  if (userId === null) return <Navigate to="/signup" replace />;
+  if (userId === null) return <Navigate to="/" replace />;
   return <MeContent userId={userId} />;
 }
 
@@ -57,7 +57,7 @@ function MeContent({ userId }: { userId: number }) {
           variant="ghost"
           onClick={() => {
             session.clear();
-            location.href = '/signup';
+            location.href = '/';
           }}
         >
           다시 시작하기
@@ -71,11 +71,23 @@ function MeContent({ userId }: { userId: number }) {
 
   return (
     <main className="mx-auto w-full max-w-6xl px-5 py-8 sm:py-12">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">내 이력서</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          정보를 고치면 이력서 새 버전이 만들어집니다. 이전 버전은 그대로 남습니다.
-        </p>
+      <header className="mb-8 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">내 이력서</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            정보를 고치면 이력서 새 버전이 만들어집니다. 이전 버전은 그대로 남습니다.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="text-sm text-slate-500 underline-offset-4 hover:underline"
+          onClick={() => {
+            session.clear();
+            location.href = '/';
+          }}
+        >
+          다른 정보로 시작하기
+        </button>
       </header>
 
       {/* 좁은 폭에서는 세로로 쌓이고, 넓으면 좌우 2단이 된다. 기능은 양쪽이 같다. */}

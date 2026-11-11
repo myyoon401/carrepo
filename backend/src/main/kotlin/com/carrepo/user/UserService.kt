@@ -31,6 +31,15 @@ class UserService(
         return user
     }
 
+    /** 이름·휴대폰·이메일로 사람을 찾는다. 없으면 호출부가 가입으로 안내한다. */
+    @Transactional(readOnly = true)
+    fun identify(request: SessionRequest): User =
+        userRepository.findByNameAndPhoneAndEmail(
+            request.name.trim(),
+            PhoneNumber.normalize(request.phone),
+            request.email.trim(),
+        ) ?: throw CarrepoException(CarrepoErrorCode.USER_NOT_FOUND)
+
     @Transactional(readOnly = true)
     fun get(id: Long): User =
         userRepository.findById(id).orElseThrow { CarrepoException(CarrepoErrorCode.USER_NOT_FOUND) }

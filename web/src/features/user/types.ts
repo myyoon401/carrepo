@@ -7,6 +7,12 @@ export type User = {
   createdAt: string;
 };
 
+export type SessionRequest = {
+  name: string;
+  phone: string;
+  email: string;
+};
+
 export type SignUpRequest = {
   name: string;
   phone: string;
