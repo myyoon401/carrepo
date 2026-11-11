@@ -20,6 +20,10 @@ dist/
 # OS
 .DS_Store
 
+# Claude Code
+.claude/
+CLAUDE.local.md
+
 # 로컬 환경
 .env
 .env.local
