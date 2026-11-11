@@ -1,6 +1,7 @@
 package com.carrepo.user
 
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -19,7 +20,7 @@ class UserController(
     @PostMapping
     fun signUp(@Valid @RequestBody request: SignUpRequest): ResponseEntity<UserResponse> {
         val user = userService.signUp(request)
-        return ResponseEntity.status(201).body(UserResponse.of(user))
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.of(user))
     }
 
     @GetMapping("/{id}")

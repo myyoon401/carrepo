@@ -18,12 +18,16 @@ type ErrorBody = { code?: string; message?: string; fieldErrors?: Record<string,
  * 오류 응답은 `{ code, message, fieldErrors? }` 한 가지 형태라 여기서 ApiError 로 바꾼다.
  */
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  // fetch 는 네트워크 실패에 TypeError 를 던진다. 그대로 두면 화면마다 ApiError 와
+  // TypeError 를 둘 다 다뤄야 하고 어디선가 반드시 빠뜨린다. 여기서 한 가지 타입으로 모은다.
   const response = await fetch(`/api${path}`, {
     ...init,
     headers: {
       ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
       ...init?.headers,
     },
+  }).catch(() => {
+    throw new ApiError(0, 'NETWORK_ERROR', '서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.');
   });
 
   if (!response.ok) {

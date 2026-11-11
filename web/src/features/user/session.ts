@@ -9,7 +9,7 @@ export const session = {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
     const id = Number(raw);
-    return Number.isFinite(id) ? id : null;
+    return Number.isSafeInteger(id) && id > 0 ? id : null;
   },
   set(id: number) {
     localStorage.setItem(KEY, String(id));

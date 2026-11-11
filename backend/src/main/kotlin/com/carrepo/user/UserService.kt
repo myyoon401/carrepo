@@ -4,6 +4,7 @@ import com.carrepo.common.exception.CarrepoErrorCode
 import com.carrepo.common.exception.CarrepoException
 import com.carrepo.document.ResumeHeaderData
 import com.carrepo.document.ResumeService
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,9 +25,16 @@ class UserService(
             throw CarrepoException(CarrepoErrorCode.DUPLICATE_USER)
         }
 
-        val user = userRepository.save(
-            User(name = name, phone = phone, email = email, title = request.title.trim()),
-        )
+        // 사전 조회와 저장 사이에 같은 사람이 또 들어올 수 있다. 제약 위반을 여기서만 해석한다 —
+        // 전역 핸들러가 모든 무결성 오류를 "중복 사용자" 로 번역하면 FK 오류까지 잘못 나간다.
+        // saveAndFlush 로 제약 검사를 이 블록 안에서 끝낸다.
+        val user = try {
+            userRepository.saveAndFlush(
+                User(name = name, phone = phone, email = email, title = request.title.trim()),
+            )
+        } catch (e: DataIntegrityViolationException) {
+            throw CarrepoException(CarrepoErrorCode.DUPLICATE_USER)
+        }
         resumeService.createFor(requireNotNull(user.id), user.toResumeHeader())
         return user
     }

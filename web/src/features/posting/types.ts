@@ -24,5 +24,3 @@ export type CreatePostingRequest = {
   sourceUrl?: string | null;
   deadlineAt?: string | null;
 };
-
-export type UpdatePostingRequest = Partial<CreatePostingRequest>;

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { Link, Navigate } from 'react-router';
 
 import { BrandMark } from '@/components/brand-mark';
@@ -8,6 +8,7 @@ import { resumeQueries } from '@/features/document';
 import { postingQueries } from '@/features/posting/queries';
 import { userQueries } from '@/features/user/queries';
 import { session } from '@/features/user/session';
+import { ApiError } from '@/lib/api';
 
 /** 로그인 뒤 첫 화면. 지금은 두 갈래뿐이라 메뉴가 곧 전부다. */
 export function MenuPage() {
@@ -21,10 +22,32 @@ function Menu({ userId }: { userId: number }) {
   const resume = useQuery(resumeQueries.byUser(userId));
   const postings = useQuery(postingQueries.list(userId));
 
-  // 지운 사용자의 id 가 브라우저에 남아 있을 수 있다. 그때는 입구로 돌려보낸다.
+  // 지운 사용자의 id 가 브라우저에 남아 있을 수 있다. 그때만 세션을 비운다.
+  // 네트워크 끊김이나 서버 오류로 로그아웃시키면 안 된다 — 다시 시도하면 되는 상황이다.
+  const staleSession = user.error instanceof ApiError && user.error.status === 404;
+
+  // render 는 순수해야 한다. 저장소를 비우는 것은 effect 에서.
+  useEffect(() => {
+    if (staleSession) session.clear();
+  }, [staleSession]);
+
+  if (staleSession) return <Navigate to="/" replace />;
+
   if (user.isError) {
-    session.clear();
-    return <Navigate to="/" replace />;
+    return (
+      <main className="mx-auto w-full max-w-lg px-5 py-16 text-center">
+        <p className="text-sm font-semibold text-red-700">
+          {user.error instanceof ApiError ? user.error.message : '불러오지 못했습니다.'}
+        </p>
+        <button
+          type="button"
+          className="mt-4 text-sm font-medium text-muted underline-offset-4 hover:underline"
+          onClick={() => void user.refetch()}
+        >
+          다시 시도
+        </button>
+      </main>
+    );
   }
 
   return (

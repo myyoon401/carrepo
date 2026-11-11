@@ -43,11 +43,13 @@ class GlobalExceptionHandler {
     fun handleMethodNotSupported(): ResponseEntity<ErrorResponse> =
         toResponse(CarrepoErrorCode.METHOD_NOT_ALLOWED)
 
-    // 유니크 제약 위반은 서비스에서 먼저 걸러지지만, 동시 요청으로 DB 까지 가는 경우가 있다.
+    // 어떤 제약을 어긴 것인지는 그 제약을 아는 곳에서만 해석할 수 있다.
+    // 여기까지 올라온 것은 해석되지 않은 위반이므로 내부 오류로 다룬다 —
+    // 전부 "중복 사용자" 로 번역하면 FK 오류나 다른 유니크 위반까지 엉뚱한 메시지가 나간다.
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleIntegrity(e: DataIntegrityViolationException): ResponseEntity<ErrorResponse> {
-        log.warn("무결성 제약 위반", e)
-        return toResponse(CarrepoErrorCode.DUPLICATE_USER)
+        log.error("해석되지 않은 무결성 제약 위반", e)
+        return toResponse(CarrepoErrorCode.INTERNAL_ERROR)
     }
 
     @ExceptionHandler(Exception::class)

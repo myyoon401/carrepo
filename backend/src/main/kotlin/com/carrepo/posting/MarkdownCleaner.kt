@@ -10,12 +10,17 @@ object MarkdownCleaner {
 
     fun clean(raw: String): String =
         raw
-            .replace(' ', ' ') // 복사하면 자주 딸려오는 non-breaking space
+            .replace(NBSP, ' ') // 복사하면 자주 딸려오는 non-breaking space
             .replace("\r\n", "\n")
             .replace("\r", "\n")
             .lineSequence()
             .map { it.trimEnd() }
             .joinToString("\n")
-            .replace(Regex("\n{3,}"), "\n\n") // 빈 줄은 최대 한 줄까지만
+            .replace(BLANK_LINES, "\n\n") // 빈 줄은 최대 한 줄까지만
             .trim()
+
+    /** 눈에 보이지 않는 문자는 코드포인트로 적는다. 편집기·포매터를 거치며 조용히 바뀔 수 있다. */
+    private const val NBSP = '\u00A0'
+
+    private val BLANK_LINES = Regex("\n{3,}")
 }

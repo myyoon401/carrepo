@@ -4,7 +4,7 @@ import { Navigate, useNavigate, useParams } from 'react-router';
 
 import { AppShell } from '@/components/app-shell';
 import { Button, Chip, Panel } from '@/components/ui/field';
-import { deletePosting, updatePosting } from '@/features/posting/api';
+import { deletePosting, updatePostingContent } from '@/features/posting/api';
 import { postingKeys, postingQueries } from '@/features/posting/queries';
 import { session } from '@/features/user/session';
 import { ApiError } from '@/lib/api';
@@ -19,20 +19,24 @@ export function PostingDetailPage() {
   return <PostingDetail userId={userId} postingId={postingId} />;
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof ApiError ? error.message : '처리하지 못했습니다.';
+}
+
 function PostingDetail({ userId, postingId }: { userId: number; postingId: number }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const posting = useQuery(postingQueries.detail(postingId));
+  const posting = useQuery(postingQueries.detail(userId, postingId));
 
   const [draft, setDraft] = useState<string | null>(null);
 
   const invalidate = async () => {
-    await queryClient.invalidateQueries({ queryKey: postingKeys.detail(postingId) });
+    await queryClient.invalidateQueries({ queryKey: postingKeys.detail(userId, postingId) });
     await queryClient.invalidateQueries({ queryKey: postingKeys.list(userId) });
   };
 
   const save = useMutation({
-    mutationFn: () => updatePosting(postingId, { rawMd: draft ?? '' }),
+    mutationFn: () => updatePostingContent(userId, postingId, draft ?? ''),
     onSuccess: async () => {
       await invalidate();
       setDraft(null);
@@ -40,7 +44,7 @@ function PostingDetail({ userId, postingId }: { userId: number; postingId: numbe
   });
 
   const remove = useMutation({
-    mutationFn: () => deletePosting(postingId),
+    mutationFn: () => deletePosting(userId, postingId),
     onSuccess: async () => {
       await invalidate();
       void navigate('/postings');
@@ -49,10 +53,12 @@ function PostingDetail({ userId, postingId }: { userId: number; postingId: numbe
 
   if (posting.isPending) return <AppShell title="공고">{<p className="text-sm text-muted">불러오는 중…</p>}</AppShell>;
   if (posting.isError || !posting.data) {
-    const message = posting.error instanceof ApiError ? posting.error.message : '공고를 불러오지 못했습니다.';
     return (
       <AppShell title="공고">
-        <p className="text-sm font-semibold text-red-700">{message}</p>
+        <p className="text-sm font-semibold text-red-700">{errorMessage(posting.error)}</p>
+        <Button variant="ghost" className="mt-4" onClick={() => void posting.refetch()}>
+          다시 시도
+        </Button>
       </AppShell>
     );
   }
@@ -94,6 +100,12 @@ function PostingDetail({ userId, postingId }: { userId: number; postingId: numbe
         </div>
       }
     >
+      {(save.error || remove.error) && (
+        <p className="brutal mb-4 bg-red-100 px-3 py-2.5 text-sm font-semibold text-red-700">
+          {errorMessage(save.error ?? remove.error)}
+        </p>
+      )}
+
       <div className="mb-4 flex flex-wrap items-center gap-2 text-sm">
         {data.deadlineAt && <Chip>마감 {data.deadlineAt}</Chip>}
         {data.sourceUrl && (

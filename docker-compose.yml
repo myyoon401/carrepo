@@ -7,7 +7,8 @@ services:
       POSTGRES_USER: carrepo
       POSTGRES_PASSWORD: carrepo
     ports:
-      - "5432:5432"
+      # LAN 에 노출하지 않는다. 공개 저장소에 비밀번호가 적혀 있으므로 특히 중요하다.
+      - "127.0.0.1:5432:5432"
     volumes:
       - carrepo-pgdata:/var/lib/postgresql/data
     healthcheck:

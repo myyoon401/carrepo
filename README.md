@@ -48,6 +48,10 @@ docker compose up -d
 ```
 
 Docker 가 colima 기반이면 `colima start` 를 먼저 합니다.
+
+> 백엔드와 PostgreSQL 은 **`127.0.0.1` 에만 바인딩**합니다. 같은 네트워크의 다른 기기(폰 등)에서
+> 열어야 할 때만 `SERVER_ADDRESS=0.0.0.0 ./gradlew :backend:bootRun` 처럼 명시적으로 풀고,
+> 신뢰하는 망에서만 씁니다 — 인증이 없어서 주소를 아는 누구나 전부 읽을 수 있습니다.
 PostgreSQL 은 설치하지 않습니다 — 컨테이너로만 띄웁니다.
 
 ### 2. 개발 — 터미널 두 개

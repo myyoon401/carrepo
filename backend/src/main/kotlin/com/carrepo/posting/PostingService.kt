@@ -23,59 +23,49 @@ class PostingService(
                 userId = userId,
                 companyId = requireNotNull(company.id),
                 title = request.title.trim(),
-                rawMd = MarkdownCleaner.clean(request.rawMd),
+                rawMd = request.rawMd, // 정리는 엔티티가 한다
                 sourceUrl = request.sourceUrl?.trim()?.takeIf { it.isNotEmpty() },
                 deadlineAt = request.deadlineAt,
             ),
         )
-        return detail(posting, company.name)
+        return PostingDetail.of(posting, company.name)
     }
 
     @Transactional(readOnly = true)
     fun list(userId: Long): List<PostingSummary> {
         val postings = postingRepository.findByUserIdOrderByCreatedAtDesc(userId)
         val names = companyNames(postings)
-        return postings.map {
-            PostingSummary(
-                id = requireNotNull(it.id),
-                companyName = names.getValue(it.companyId),
-                title = it.title,
-                sourceUrl = it.sourceUrl,
-                deadlineAt = it.deadlineAt,
-                createdAt = it.createdAt,
-            )
-        }
+        return postings.map { PostingSummary.of(it, names.getValue(it.companyId)) }
     }
 
     @Transactional(readOnly = true)
-    fun get(id: Long): PostingDetail {
-        val posting = find(id)
-        return detail(posting, companyName(posting.companyId))
+    fun get(userId: Long, id: Long): PostingDetail {
+        val posting = find(userId, id)
+        return PostingDetail.of(posting, companyName(posting.companyId))
     }
 
     @Transactional
-    fun update(id: Long, request: UpdatePostingRequest): PostingDetail {
-        val posting = find(id)
+    fun updateContent(userId: Long, id: Long, request: UpdatePostingContentRequest): PostingDetail {
+        val posting = find(userId, id)
+        posting.updateContent(request.rawMd)
 
-        request.title?.trim()?.takeIf { it.isNotEmpty() }?.let { posting.title = it }
-        request.rawMd?.takeIf { it.isNotBlank() }?.let { posting.rawMd = MarkdownCleaner.clean(it) }
-        request.sourceUrl?.let { posting.sourceUrl = it.trim().takeIf { url -> url.isNotEmpty() } }
-        request.deadlineAt?.let { posting.deadlineAt = it }
-
-        val companyName = request.companyName?.trim()?.takeIf { it.isNotEmpty() }?.let {
-            val company = findOrCreateCompany(it)
-            posting.companyId = requireNotNull(company.id)
-            company.name
-        } ?: companyName(posting.companyId)
-
-        return detail(posting, companyName)
+        // @LastModifiedDate 는 flush 시점에 채워진다. 먼저 내보내지 않으면 이전 시각이 응답된다.
+        postingRepository.flush()
+        return PostingDetail.of(posting, companyName(posting.companyId))
     }
 
     @Transactional
-    fun delete(id: Long) = postingRepository.delete(find(id))
+    fun delete(userId: Long, id: Long) = postingRepository.delete(find(userId, id))
 
-    private fun find(id: Long): Posting =
-        postingRepository.findById(id).orElseThrow { CarrepoException(CarrepoErrorCode.POSTING_NOT_FOUND) }
+    /**
+     * 소유권을 조회의 기본 조건으로 둔다.
+     *
+     * 인증이 없는 지금은 접근 통제가 아니라 **데이터 불변조건**이다 — 호출자가 고른 사용자의
+     * 자원만 다룬다는 뜻. 인증이 붙으면 `userId` 의 출처만 실제 세션 사용자로 바꾸면 된다.
+     */
+    private fun find(userId: Long, id: Long): Posting =
+        postingRepository.findByIdAndUserId(id, userId)
+            ?: throw CarrepoException(CarrepoErrorCode.POSTING_NOT_FOUND)
 
     // 같은 회사에 여러 번 지원하므로 회사는 이름으로 찾아 쓰고, 없을 때만 만든다.
     private fun findOrCreateCompany(name: String): Company {
@@ -83,24 +73,15 @@ class PostingService(
         return companyRepository.findByName(trimmed) ?: companyRepository.save(Company(trimmed))
     }
 
+    // company_id 는 NOT NULL FK 다. 없다는 것은 정상 상황이 아니므로 가려서 응답하지 않는다.
     private fun companyName(companyId: Long): String =
-        companyRepository.findById(companyId).map { it.name }.orElse("(알 수 없음)")
+        companyRepository.findById(companyId).map { it.name }
+            .orElseThrow { IllegalStateException("공고가 가리키는 회사($companyId)가 없습니다.") }
 
     /** 목록에서 회사명을 한 번에 모아 온다 — 행마다 조회하면 N+1 이 된다. */
     private fun companyNames(postings: List<Posting>): Map<Long, String> {
         val ids = postings.map { it.companyId }.distinct()
-        return companyRepository.findAllById(ids).associate { requireNotNull(it.id) to it.name }
-            .withDefault { "(알 수 없음)" }
+        val names = companyRepository.findAllById(ids).associate { requireNotNull(it.id) to it.name }
+        return names.withDefault { error("공고가 가리키는 회사($it)가 없습니다.") }
     }
-
-    private fun detail(posting: Posting, companyName: String) = PostingDetail(
-        id = requireNotNull(posting.id),
-        companyName = companyName,
-        title = posting.title,
-        rawMd = posting.rawMd,
-        sourceUrl = posting.sourceUrl,
-        deadlineAt = posting.deadlineAt,
-        createdAt = posting.createdAt,
-        updatedAt = posting.updatedAt,
-    )
 }

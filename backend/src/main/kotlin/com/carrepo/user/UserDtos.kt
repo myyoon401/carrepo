@@ -13,7 +13,7 @@ data class SessionRequest(
     val name: String,
 
     @field:NotBlank(message = "휴대폰번호를 입력해 주세요.")
-    @field:Pattern(regexp = "^[0-9-\\s]{10,20}$", message = "휴대폰번호 형식이 올바르지 않습니다.")
+    @field:Pattern(regexp = PhoneNumber.PATTERN, message = "휴대폰번호 형식이 올바르지 않습니다.")
     val phone: String,
 
     @field:NotBlank(message = "이메일을 입력해 주세요.")
@@ -28,7 +28,7 @@ data class SignUpRequest(
     val name: String,
 
     @field:NotBlank(message = "휴대폰번호를 입력해 주세요.")
-    @field:Pattern(regexp = "^[0-9-\\s]{10,20}$", message = "휴대폰번호 형식이 올바르지 않습니다.")
+    @field:Pattern(regexp = PhoneNumber.PATTERN, message = "휴대폰번호 형식이 올바르지 않습니다.")
     val phone: String,
 
     @field:NotBlank(message = "이메일을 입력해 주세요.")
@@ -47,7 +47,7 @@ data class UpdateUserRequest(
     @field:Size(max = 50, message = "이름은 50자를 넘을 수 없습니다.")
     val name: String? = null,
 
-    @field:Pattern(regexp = "^[0-9-\\s]{10,20}$", message = "휴대폰번호 형식이 올바르지 않습니다.")
+    @field:Pattern(regexp = PhoneNumber.PATTERN, message = "휴대폰번호 형식이 올바르지 않습니다.")
     val phone: String? = null,
 
     @field:Email(message = "이메일 형식이 올바르지 않습니다.")
