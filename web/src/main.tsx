@@ -5,6 +5,9 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
 
 import { HomePage } from '@/routes/home';
 import { MePage } from '@/routes/me';
+import { PostingDetailPage } from '@/routes/posting-detail';
+import { PostingNewPage } from '@/routes/posting-new';
+import { PostingListPage } from '@/routes/postings';
 
 import './styles.css';
 
@@ -13,6 +16,9 @@ import './styles.css';
 const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
   { path: '/me', element: <MePage /> },
+  { path: '/postings', element: <PostingListPage /> },
+  { path: '/postings/new', element: <PostingNewPage /> },
+  { path: '/postings/:id', element: <PostingDetailPage /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ]);
 

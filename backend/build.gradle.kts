@@ -18,6 +18,11 @@ dependencies {
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
 
+    // 공고 원문 추출: HTML 파싱(jsoup) → 본문 추려내기(readability) → 마크다운 변환(flexmark)
+    implementation("org.jsoup:jsoup:1.18.3")
+    implementation("net.dankito.readability4j:readability4j:1.0.8")
+    implementation("com.vladsch.flexmark:flexmark-html2md-converter:0.64.8")
+
     testImplementation("org.springframework.boot:spring-boot-webmvc-test")
 }
 
