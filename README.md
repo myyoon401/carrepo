@@ -32,7 +32,7 @@
 - 내 정보 수정 시 **이력서 새 버전 생성** (이전 버전은 보존)
 - 미리보기 · 인쇄(PDF 저장) · HTML 내려받기
 
-## 빠른 시작
+## 구동 방법
 
 필요한 것: JDK 21, Node 24+, pnpm, Docker
 
@@ -41,24 +41,67 @@
 > `java -jar` 로 직접 띄우려면 PATH 에 올려야 합니다.
 > `export PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH`
 
-```bash
-docker compose up -d                 # PostgreSQL
-./gradlew :backend:bootRun           # 백엔드 → localhost:8080
-pnpm --dir web install && pnpm --dir web dev   # 프런트 → localhost:5173
-```
-
-브라우저에서 <http://localhost:5173> 을 엽니다.
-프런트는 API 주소를 모릅니다 — 항상 `/api/...` 상대 경로로 부르고, dev 에서는 Vite 프록시가 백엔드로 넘깁니다.
-
-### 배포
+### 1. 데이터베이스 (항상 먼저)
 
 ```bash
-./gradlew :backend:bootJar           # SPA 를 jar 안에 넣는다
-java -jar backend/build/libs/carrepo.jar
+docker compose up -d
 ```
 
-**산출물은 jar 하나, 프로세스 하나.** 배포에서는 같은 서버가 API 와 화면을 함께 서빙하므로
-프록시도 CORS 설정도 없습니다. 프런트 없이 빨리 받아야 할 때만 `-PskipWeb`.
+Docker 가 colima 기반이면 `colima start` 를 먼저 합니다.
+PostgreSQL 은 설치하지 않습니다 — 컨테이너로만 띄웁니다.
+
+### 2. 개발 — 터미널 두 개
+
+프런트를 고쳐가며 작업할 때 쓰는 방식입니다. 저장하면 화면이 바로 바뀝니다.
+
+```bash
+# 터미널 1 — 백엔드
+./gradlew :backend:bootRun                     # → localhost:8080
+
+# 터미널 2 — 프런트
+pnpm --dir web install                         # 처음 한 번만
+pnpm --dir web dev                             # → localhost:5173
+```
+
+접속은 <http://localhost:5173> 입니다. **8080 이 아닙니다** —
+SPA 는 배포 산출물(`bootJar`)에만 들어가고 `bootRun` 에는 들어가지 않습니다.
+개발 중에 프런트를 매번 다시 빌드하지 않기 위해서입니다.
+
+프런트는 API 주소를 모릅니다. 항상 `/api/...` 상대 경로로 부르고,
+dev 에서는 Vite 프록시가 8080 으로 넘깁니다. 그래서 CORS 설정이 없습니다.
+
+> 프런트만 띄워도 화면은 보이지만 가입은 실패합니다 — 넘길 백엔드가 없기 때문입니다.
+
+### 3. 한 프로세스로 띄우기
+
+실제 배포와 같은 형태입니다. 터미널 하나로 끝납니다.
+
+```bash
+./gradlew :backend:bootJar                     # SPA 를 jar 안에 넣는다
+java -jar backend/build/libs/carrepo.jar       # → localhost:8080 하나로 화면·API 둘 다
+```
+
+**산출물은 jar 하나, 프로세스 하나.** 같은 서버가 API 와 화면을 함께 서빙하므로
+프록시도 게이트웨이도 없습니다. 대신 프런트를 고칠 때마다 다시 빌드해야 하므로,
+개발 중에는 2번 방식이 편합니다.
+
+프런트 없이 빨리 받아야 할 때만 `-PskipWeb` 을 붙입니다.
+
+### 4. 내리기
+
+```bash
+# 백엔드 — 실행 중인 터미널에서 Ctrl+C
+lsof -ti:8080 | xargs kill      # 포트가 안 풀릴 때
+
+docker compose down             # DB 중지 (데이터는 볼륨에 남는다)
+docker compose down -v          # 데이터까지 삭제
+colima stop                     # Docker VM 자체를 내림
+```
+
+> `bootRun` 중에 Gradle 진행률이 85% 에서 멈춰 있는 것은 정상입니다.
+> `bootRun` 은 서버를 내려야 끝나는 태스크라 진행률이 100% 가 되지 않습니다.
+> `Tomcat started on port 8080` 이 찍혔으면 기동된 것입니다.
+> 진행률 표시가 거슬리면 `--console=plain` 을 붙입니다.
 
 ## 구조
 
