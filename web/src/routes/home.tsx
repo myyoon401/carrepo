@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 
+import { BrandMark } from '@/components/brand-mark';
 import { Button, Field, TextInput } from '@/components/ui/field';
 import { signUp, startSession } from '@/features/user/api';
 import { CUSTOM_TITLE, RESUME_TITLE_PRESETS } from '@/features/user/resume-titles';
@@ -64,9 +65,10 @@ function HomeForm() {
 
   return (
     <main className="mx-auto w-full max-w-lg px-5 py-10 sm:py-16">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">커리포</h1>
-        <p className="mt-1.5 text-sm text-slate-500">
+      <header className="mb-8 flex flex-col items-center text-center">
+        <BrandMark size={72} />
+        <h1 className="mt-4 text-2xl font-extrabold tracking-tight">커리포</h1>
+        <p className="mt-1.5 text-sm text-muted">
           공고부터 면접까지 쌓일수록 나를 더 잘 아는 커리어 저장소
         </p>
       </header>
@@ -132,7 +134,9 @@ function HomeForm() {
         )}
 
         {error && !error.fieldErrors && (
-          <p className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700">{error.message}</p>
+          <p className="brutal bg-red-100 px-3 py-2.5 text-sm font-semibold text-red-700">
+            {error.message}
+          </p>
         )}
 
         <Button type="submit" disabled={pending} className="mt-2 py-3">
@@ -142,7 +146,7 @@ function HomeForm() {
         {step === 'register' && (
           <button
             type="button"
-            className="text-sm text-slate-500 underline-offset-4 hover:underline"
+            className="text-sm font-medium text-muted underline-offset-4 hover:underline"
             onClick={() => {
               setStep('identify');
               identify.reset();
@@ -171,11 +175,10 @@ function TitlePicker({
   onCustomTitle: (value: string) => void;
 }) {
   return (
-    <fieldset className="flex flex-col gap-1.5 rounded-xl bg-white p-4 ring-1 ring-slate-200">
+    <fieldset className="brutal flex flex-col gap-1.5 bg-brand-soft p-4">
       <legend className="sr-only">이력서 타이틀</legend>
-      <p className="text-sm text-slate-600">
-        처음 오셨네요. <strong className="font-semibold text-slate-900">이력서 타이틀</strong>만
-        고르면 바로 시작합니다.
+      <p className="text-sm">
+        처음 오셨네요. <strong className="font-bold">이력서 타이틀</strong>만 고르면 바로 시작합니다.
       </p>
 
       <div className="mt-2 flex flex-col gap-2">
@@ -183,10 +186,11 @@ function TitlePicker({
           <label
             key={option}
             className={cn(
-              'flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-3 text-sm transition',
+              'flex cursor-pointer items-center gap-3 rounded-lg border-2 border-ink bg-white px-3 py-3 text-sm font-medium',
+              'transition-[transform,box-shadow] duration-75',
               choice === option
-                ? 'border-slate-900 bg-white ring-2 ring-slate-900/10'
-                : 'border-slate-300 bg-white hover:bg-slate-50',
+                ? 'translate-x-[3px] translate-y-[3px] font-bold shadow-none'
+                : 'shadow-[3px_3px_0_0_var(--color-ink)]',
             )}
           >
             <input
@@ -195,9 +199,9 @@ function TitlePicker({
               value={option}
               checked={choice === option}
               onChange={() => onChoice(option as TitleChoice)}
-              className="size-4 accent-slate-900"
+              className="size-4 accent-brand"
             />
-            <span className={option === CUSTOM_TITLE ? 'text-slate-600' : ''}>{option}</span>
+            <span className={option === CUSTOM_TITLE ? 'text-muted' : ''}>{option}</span>
           </label>
         ))}
       </div>

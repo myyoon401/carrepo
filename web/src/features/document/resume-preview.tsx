@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-import { Button } from '@/components/ui/field';
+import { Button, Chip } from '@/components/ui/field';
 import { cn } from '@/lib/cn';
 
 import { resumeRawUrl } from './api';
@@ -19,8 +19,9 @@ export function ResumePreview({ userId, seq }: { userId: number; seq?: number })
   return (
     <section className="flex min-w-0 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-slate-700">
-          미리보기 {seq ? <span className="font-normal text-slate-500">· v{seq}</span> : null}
+        <h2 className="flex items-center gap-2 text-sm font-bold">
+          미리보기
+          {seq ? <Chip>v{seq}</Chip> : null}
         </h2>
         <div className="flex gap-2">
           <Button variant="ghost" onClick={() => frameRef.current?.contentWindow?.print()}>
@@ -30,8 +31,8 @@ export function ResumePreview({ userId, seq }: { userId: number; seq?: number })
             href={src}
             download="resume.html"
             className={cn(
-              'inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white',
-              'px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50',
+              'brutal brutal-press brutal-focus inline-flex items-center justify-center',
+              'bg-white px-4 py-2.5 text-sm font-bold',
             )}
           >
             HTML 내려받기
@@ -46,7 +47,7 @@ export function ResumePreview({ userId, seq }: { userId: number; seq?: number })
         src={src}
         title="이력서 미리보기"
         sandbox="allow-same-origin allow-modals"
-        className="h-[60vh] w-full rounded-xl border border-slate-200 bg-white shadow-sm lg:h-[calc(100vh-14rem)]"
+        className="brutal h-[60vh] w-full bg-white lg:h-[calc(100vh-14rem)]"
       />
     </section>
   );

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router';
 
+import { BrandMark } from '@/components/brand-mark';
 import { Button, Field, TextInput } from '@/components/ui/field';
 import { ResumePreview, resumeKeys, resumeQueries } from '@/features/document';
 import { updateUser } from '@/features/user/api';
@@ -45,12 +46,12 @@ function MeContent({ userId }: { userId: number }) {
   });
 
   if (user.isPending || !draft) {
-    return <p className="p-8 text-sm text-slate-500">불러오는 중…</p>;
+    return <p className="p-8 text-sm text-muted">불러오는 중…</p>;
   }
   if (user.isError) {
     return (
       <div className="flex flex-col items-start gap-3 p-8">
-        <p className="text-sm text-red-700">
+        <p className="text-sm font-semibold text-red-700">
           {user.error instanceof ApiError ? user.error.message : '사용자를 불러오지 못했습니다.'}
         </p>
         <Button
@@ -72,15 +73,18 @@ function MeContent({ userId }: { userId: number }) {
   return (
     <main className="mx-auto w-full max-w-6xl px-5 py-8 sm:py-12">
       <header className="mb-8 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">내 이력서</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            정보를 고치면 이력서 새 버전이 만들어집니다. 이전 버전은 그대로 남습니다.
-          </p>
+        <div className="flex items-start gap-3">
+          <BrandMark size={44} className="mt-0.5 shrink-0" />
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight">내 이력서</h1>
+            <p className="mt-1.5 text-sm text-muted">
+              정보를 고치면 이력서 새 버전이 만들어집니다. 이전 버전은 그대로 남습니다.
+            </p>
+          </div>
         </div>
         <button
           type="button"
-          className="text-sm text-slate-500 underline-offset-4 hover:underline"
+          className="text-sm font-medium text-muted underline-offset-4 hover:underline"
           onClick={() => {
             session.clear();
             location.href = '/';
@@ -132,7 +136,7 @@ function MeContent({ userId }: { userId: number }) {
               onChange={(e) =>
                 setDraft({ ...draft, title: e.target.value === CUSTOM_TITLE ? '' : e.target.value })
               }
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base focus:border-slate-900 focus:outline-none"
+              className="brutal brutal-focus w-full bg-white px-3 py-2.5 text-base font-medium"
             >
               {RESUME_TITLE_PRESETS.map((option) => (
                 <option key={option} value={option}>
@@ -153,10 +157,12 @@ function MeContent({ userId }: { userId: number }) {
           </Field>
 
           {error && !error.fieldErrors && (
-            <p className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700">{error.message}</p>
+            <p className="brutal bg-red-100 px-3 py-2.5 text-sm font-semibold text-red-700">
+              {error.message}
+            </p>
           )}
           {mutation.isSuccess && !mutation.isPending && (
-            <p className="rounded-lg bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700">
+            <p className="brutal bg-mint px-3 py-2.5 text-sm font-bold">
               저장했습니다. 새 버전이 만들어졌습니다.
             </p>
           )}

@@ -12,29 +12,25 @@ type FieldProps = {
 
 export function Field({ label, htmlFor, error, hint, children }: FieldProps) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={htmlFor} className="text-sm font-medium text-slate-700">
+    <div className="flex flex-col gap-2">
+      <label htmlFor={htmlFor} className="text-sm font-bold">
         {label}
       </label>
       {children}
-      {hint && !error && <p className="text-xs text-slate-500">{hint}</p>}
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {hint && !error && <p className="text-xs text-muted">{hint}</p>}
+      {error && <p className="text-xs font-semibold text-red-600">{error}</p>}
     </div>
   );
 }
 
-export function TextInput({
-  className,
-  ...props
-}: React.InputHTMLAttributes<HTMLInputElement>) {
+export function TextInput({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
       className={cn(
-        'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base',
-        'placeholder:text-slate-400',
-        'focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 focus:outline-none',
-        'disabled:bg-slate-100 disabled:text-slate-500',
+        'brutal brutal-focus w-full bg-white px-3 py-2.5 text-base font-medium',
+        'placeholder:font-normal placeholder:text-slate-400',
+        'disabled:bg-slate-100 disabled:text-muted disabled:shadow-none',
         className,
       )}
     />
@@ -50,11 +46,28 @@ export function Button({
     <button
       {...props}
       className={cn(
-        'inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition',
-        'disabled:cursor-not-allowed disabled:opacity-50',
-        variant === 'primary'
-          ? 'bg-slate-900 text-white hover:bg-slate-800'
-          : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50',
+        'brutal brutal-press brutal-focus inline-flex items-center justify-center',
+        'px-4 py-2.5 text-sm font-bold',
+        'disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none',
+        variant === 'primary' ? 'bg-ink text-white' : 'bg-white text-ink',
+        className,
+      )}
+    />
+  );
+}
+
+/** 카드·패널의 공통 몸통. 안쪽 여백은 쓰는 쪽이 정한다. */
+export function Panel({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div {...props} className={cn('brutal bg-white', className)} />;
+}
+
+/** 작은 검정 알약 라벨. 상태·기간 표시에 쓴다. */
+export function Chip({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) {
+  return (
+    <span
+      {...props}
+      className={cn(
+        'inline-flex items-center gap-1 rounded-md bg-ink px-2 py-1 text-xs font-bold text-white',
         className,
       )}
     />

@@ -1,7 +1,24 @@
 @import 'tailwindcss';
 
+/*
+  커리포 디자인 토큰.
+
+  참조한 톤: 네오브루탈리즘 + 8비트 도트. 두꺼운 검정 외곽선과 **블러 0 의 하드 그림자**가
+  전부다. 흐린 그림자를 쓰면 즉시 다른 디자인이 된다.
+
+  원본(아동용 앱)보다 한 단계씩 줄였다 — 커리포는 공고 원문·면접 복기처럼 긴 글을 담아야 해서
+  테두리 4px·그림자 4px 를 그대로 쓰면 정보 밀도가 안 나온다.
+*/
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Apple SD Gothic Neo', sans-serif;
+  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+
+  --color-ink: #111111;
+  --color-paper: #fffdf8;
+  --color-brand: #5b6fe0;
+  --color-brand-soft: #eef0fd;
+  --color-mint: #7ee8b0;
+  --color-sun: #ffd43b;
+  --color-muted: #6b7280;
 }
 
 html {
@@ -9,6 +26,37 @@ html {
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  background: var(--color-paper);
+  color: var(--color-ink);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  /* 테두리 + 하드 그림자. 카드·입력·버튼이 공유하는 기본 몸통 */
+  .brutal {
+    border: 2px solid var(--color-ink);
+    border-radius: 12px;
+    box-shadow: 3px 3px 0 0 var(--color-ink);
+  }
+
+  /* 눌리는 느낌. 그림자만큼 밀려 들어갔다가 돌아온다 — 이 톤의 핵심 인터랙션이다 */
+  .brutal-press {
+    transition:
+      transform 60ms ease-out,
+      box-shadow 60ms ease-out;
+  }
+  .brutal-press:active:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 0 var(--color-ink);
+  }
+
+  /* 포커스는 그림자를 색으로 바꿔 표시한다. 링을 덧대면 테두리가 겹쳐 지저분해진다 */
+  .brutal-focus:focus-visible {
+    outline: none;
+    box-shadow: 3px 3px 0 0 var(--color-brand);
+  }
+  .brutal-focus:focus-within {
+    box-shadow: 3px 3px 0 0 var(--color-brand);
+  }
 }
